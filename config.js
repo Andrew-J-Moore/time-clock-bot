@@ -1,13 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
+const {discord_js_1, GatewayIntentBits} = require("discord.js");
 exports.default = {
     prefix: '$',
     token: process.env.token,
     intents: [
-        discord_js_1.Intents.FLAGS.GUILDS,
-        discord_js_1.Intents.FLAGS.GUILD_MESSAGES,
-        discord_js_1.Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.MessageContent
     ]
 };
 //# sourceMappingURL=config.js.map
