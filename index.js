@@ -11,14 +11,14 @@ const { intents, prefix, token } = config_1.default;
 const client = new discord_js_1.Client({
   intents,
   presence: {
-    status: "online",
-    activity: {
+    status: 'online',
+    activities: [{
       name: "$help",
-      type: "LISTENING",
-    },
+      type: discord_js_1.ActivityType.Listening,
+    }]
   },
 });
-console.log("Activity Set");
+
 client.on("ready", () => {
   console.log(`Logged into discord as: ${client.user.tag}`);
 });
@@ -54,7 +54,8 @@ client.on("messageCreate", async (message) => {
       case "help":
         const embed = (0, commands_1.default)(message);
         embed.setThumbnail(client.user.displayAvatarURL());
-        await message.channel.send({ embeds: [embed] });
+        await message.author.send({ embeds: [embed] });
+        message.react('✅');
         break;
 
       //clockin command
@@ -69,7 +70,8 @@ client.on("messageCreate", async (message) => {
             `${userData}` + " clocked into " + message.guild.name + "!"
           )
           .setColor('Blue')
-          .setFooter({ text: now.toLocaleString("en-US") + " UTC" });
+          .setTimestamp();
+        //   .setFooter({ text: now.toLocaleString("en-US") + " UTC" });
 
         User.findOne({
           user_id: message.author.id,
@@ -159,9 +161,10 @@ client.on("messageCreate", async (message) => {
                   "** mins to your time."
               )
               .setColor('Blue')
-              .setFooter({
-                text: clockout_now.toLocaleString("en-US") + " UTC",
-              });
+              .setTimestamp();
+            //   .setFooter({
+            //     text: clockout_now.toLocaleString("en-US") + " UTC",
+            //   });
 
             //updated user object
             const updatedUser = new User({
@@ -208,7 +211,8 @@ client.on("messageCreate", async (message) => {
                 const ALLDATA_EMBED = new discord_js_1.EmbedBuilder()
                   .setTitle("All data for **" + message.guild.name + ":**")
                   .setColor('Blue')
-                  .setFooter({ text: time_now.toLocaleString() + " UTC" });
+                  .setTimestamp();
+                //   .setFooter({ text: time_now.toLocaleString() + " UTC" });
 
                 for (let user of users) {
                   let time_ms = user.total_time;
@@ -288,7 +292,8 @@ client.on("messageCreate", async (message) => {
                       time_secs +
                       " secs."
                   )
-                  .setFooter({ text: time_now.toLocaleString() + " UTC" });
+                  .setTimestamp();
+                //   .setFooter({ text: time_now.toLocaleString() + " UTC" });
 
                 message.channel.send({ embeds: [data_embed] });
               }
@@ -313,7 +318,8 @@ client.on("messageCreate", async (message) => {
                 "Everyone clocked into " + message.guild.name + " right now:\n"
               )
               .setColor('Blue')
-              .setFooter({ text: time_now1.toLocaleString() + " UTC" });
+              .setTimestamp();
+            //   .setFooter({ text: time_now1.toLocaleString() + " UTC" });
 
             for (let user of clockedin) {
               let elapsed_time = Math.floor((time_now1 - user.clockin) / 60000);
@@ -325,7 +331,6 @@ client.on("messageCreate", async (message) => {
                 {name: `${userInfo}`, value: ` - ${elapsed_time} mins\n\n`, inline: true}
               );
             }
-            console.log(clockedin_embed.fields);
             message.channel.send({ embeds: [clockedin_embed] });
           })
           .catch((err) => {
@@ -340,7 +345,7 @@ client.on("messageCreate", async (message) => {
     //Command for forcing clockin/out
       case "force":
         const force_now = new Date();
-        console.log(message.member.permissions.has("MANAGE_GUILD"));
+        // console.log(message.member.permissions.has("MANAGE_GUILD"));
         // console.log(args);
 
         if (!message.member.permissions.has("MANAGE_GUILD")) {
@@ -378,9 +383,10 @@ client.on("messageCreate", async (message) => {
                             message.guild.name
                         )
                         .setColor('Blue')
-                        .setFooter({
-                          text: force_now.toLocaleString() + " UTC",
-                        });
+                        .setTimestamp();
+                        // .setFooter({
+                        //   text: force_now.toLocaleString() + " UTC",
+                        // });
 
                       message.channel.send({ embeds: [FORCECI_EMBED] });
                     })
@@ -429,9 +435,10 @@ client.on("messageCreate", async (message) => {
                             "** mins to their time."
                         )
                         .setColor('Blue')
-                        .setFooter({
-                          text: force_now.toLocaleString() + " UTC",
-                        });
+                        .setTimestamp()
+                        // .setFooter({
+                        //   text: force_now.toLocaleString() + " UTC",
+                        // });
 
                       message.channel.send({ embeds: [FORCECO_EMBED] });
                     })
@@ -506,7 +513,8 @@ client.on("messageCreate", async (message) => {
                     `File created for ${mentioned_user} and added ${time_to_add} mins to their time!`
                   )
                   .setColor('Blue')
-                  .setFooter({ text: `${add_now.toLocaleString()} UTC` });
+                  .setTimestamp()
+                //   .setFooter({ text: `${add_now.toLocaleString()} UTC` });
                 message.channel.send(
                   "No data file exists yet. I'll create one now..."
                 );
@@ -530,11 +538,13 @@ client.on("messageCreate", async (message) => {
                     );
                   });
               } else {
-                const add_embed = new discord_js_1.MessageEmbed()
+                const add_embed = new discord_js_1.EmbedBuilder()
                   .setDescription(
                     `Successfully added ${time_to_add} mins to ${mentioned_user}'s time!`
                   )
-                  .setFooter({ text: `${add_now.toLocaleString()} UTC` });
+                  .setColor('Blue')
+                  .setTimestamp();
+                //   .setFooter({ text: `${add_now.toLocaleString()} UTC` });
 
                 const updatedUser = new User({
                   _id: user._id,
