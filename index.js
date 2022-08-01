@@ -207,7 +207,7 @@ client.on("messageCreate", async (message) => {
 
         if (
           args[0] == "all" &&
-          message.member.permissions.has("MANAGE_GUILD")
+          message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)
         ) {
           User.find({ server_id: message.guild.id })
             .sort({ elapsed_time: 1 })
@@ -357,7 +357,7 @@ client.on("messageCreate", async (message) => {
         // console.log(message.member.permissions.has("MANAGE_GUILD"));
         // console.log(args);
 
-        if (!message.member.permissions.has("MANAGE_GUILD")) {
+        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
           message.reply("Sorry. You don't have permission to do that.");
         } else if (args[0] == "clockin") {
           if (!message.mentions.users.first()) {
@@ -467,7 +467,7 @@ client.on("messageCreate", async (message) => {
 
     //command for clearing data in the server    
       case "clear":
-        if (!message.member.permissions.has("MANAGE_GUILD")) {
+        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
           message.reply("Sorry. You don't have permission to do that.");
         } else {
           const m = await message.reply(
@@ -506,7 +506,7 @@ client.on("messageCreate", async (message) => {
     //command for adding time to a user    
       case "add":
         const add_now = new Date();
-        if (!message.member.permissions.has("MANGE_GUILD")) {
+        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
           message.reply("Sorry, you don't have permission to do this...");
         } else {
           const time_to_add = args[1];
