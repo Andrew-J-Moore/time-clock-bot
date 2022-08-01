@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv").config();
-const app = require("express");
+const app = require("express") ();
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const tslib_1 = require("tslib");
