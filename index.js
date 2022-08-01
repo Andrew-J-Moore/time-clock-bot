@@ -513,8 +513,8 @@ client.on("messageCreate", async (message) => {
       case "add":
         const add_now = new Date();
         if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)) {
-          message.reply("Sorry, you don't have permission to do this...");
-        } else if(!Number.isInteger(args[1])) {
+          message.reply("Sorry, you don't have permission to do this.");
+        } else if(!Number.isInteger(parseInt(args[1]))) {
           message.reply("That's the wrong format. Please do $add [user] [time in minutes]. The second argument must be an integer.")
          } else {
           const time_to_add = args[1];
