@@ -584,7 +584,7 @@ client.on("messageCreate", async (message) => {
                   server_id: user.server_id,
                 });
 
-                User.updateOne(updatedUser)
+                updatedUser.updateOne({_id: user._id})
                   .then((result) => {
                     message.channel.send({ embeds: [add_embed] });
                   })
