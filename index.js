@@ -255,8 +255,8 @@ client.on("messageCreate", async (message) => {
                   let userData = client.users.cache.find(
                     (user1) => user1.id == user.user_id
                   );
-
-                  ALLDATA_EMBED.addFields({name: `${userData}`, value: `- ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s`});
+                  // console.log(userData);
+                  ALLDATA_EMBED.addFields({name: `-------------------------------------`, value: `**${userData} - ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s**`});
                 }
 
                 message.author.send({ embeds: [ALLDATA_EMBED] });
@@ -351,7 +351,7 @@ client.on("messageCreate", async (message) => {
               );
               // console.log(userInfo);
               clockedin_embed.addFields(
-                {name: `${userInfo}`, value: ` - ${elapsed_time} mins\n\n`, inline: true}
+                {name: `-------------------------------------`, value: `${userInfo} - ${elapsed_time} mins\n\n`, inline: true}
               );
             }
             message.channel.send({ embeds: [clockedin_embed] });
@@ -401,7 +401,7 @@ client.on("messageCreate", async (message) => {
                     total_time: user.total_time,
                     server_id: user.server_id,
                   };
-                  User.updateOne(updatedUser)
+                  User.updateOne({_id: user._id}, updatedUser)
                     .then(() => {
                       const FORCECI_EMBED = new discord_js_1.EmbedBuilder()
                         .setDescription(
