@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
   res.send("hello!")
 })
 
-app.listen(3000, () => {
+app.listen((process.env.PORT || 3000), () => {
   console.log("Project is ready!")
 })
 
