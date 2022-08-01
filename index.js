@@ -207,7 +207,7 @@ client.on("messageCreate", async (message) => {
 
         if (
           args[0] == "all" &&
-          message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)
+          message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)
         ) {
           User.find({ server_id: message.guild.id })
             .sort({ elapsed_time: 1 })
@@ -255,7 +255,7 @@ client.on("messageCreate", async (message) => {
               console.log(err);
               message.reply("An error ocurred. Please try again later.");
             });
-        } else if(args[0] == "all" && !message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
+        } else if(args[0] == "all" && !message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)) {
           message.reply("Sorry. You don't have permission to do that.");
         } else {
           //pulling user data
@@ -359,7 +359,7 @@ client.on("messageCreate", async (message) => {
         // console.log(message.member.permissions.has("MANAGE_GUILD"));
         // console.log(args);
 
-        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
+        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)) {
           message.reply("Sorry. You don't have permission to do that.");
         } else if(args[0] != "clockin" && args[0] != "clockout") {
           message.reply(
@@ -473,7 +473,7 @@ client.on("messageCreate", async (message) => {
 
     //command for clearing data in the server    
       case "clear":
-        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
+        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)) {
           message.reply("Sorry. You don't have permission to do that.");
         } else {
           const m = await message.reply(
@@ -512,7 +512,7 @@ client.on("messageCreate", async (message) => {
     //command for adding time to a user    
       case "add":
         const add_now = new Date();
-        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.ManageGuild)) {
+        if (!message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)) {
           message.reply("Sorry, you don't have permission to do this...");
         } else if(!Number.isInteger(args[1])) {
           message.reply("That's the wrong format. Please do $add [user] [time in minutes]. The second argument must be an integer.")

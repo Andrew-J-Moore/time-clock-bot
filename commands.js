@@ -26,19 +26,19 @@ const commands = {
         format: 'data'
     },
     'data all': {
-        description: 'Receive a DM of data for everyone in the server. Requires "Manager Server" permission',
+        description: 'Receive a DM of data for everyone in the server. Requires "Administrator" permission',
         format: 'data all'
     },
     'force': {
-        description: 'Force a user to clock in or out. Requires "Manage Server" permission.',
+        description: 'Force a user to clock in or out. Requires "Administrator" permission.',
         format: 'force [clockin/clockout] [user]'
     },
     'add': {
-        description: 'Add time to a user. Requires "Manage Server" permission. You can use negative numbers to subtract time.',
+        description: 'Add time to a user. Requires "Administrator" permission. You can use negative numbers to subtract time.',
         format: 'add [user] [time in minutes]'
     },
     'clear': {
-        description: 'Permanently delete data for everyone in the server. Requires "Manage Server" permission.',
+        description: 'Permanently delete data for everyone in the server. Requires "Administrator" permission.',
         format: 'clear'
     }
 };
