@@ -67,13 +67,17 @@ client.on("messageCreate", async (message) => {
         message.react('✅');
         break;
 
-      //clockin command
+      //clockin command for going on duty
       case "clockin":
         // console.log("clockin received (line 52 index.js)");
         const now = new Date();
+
+        //getting data about the user from discord
         let userData = client.users.cache.find(
           (user1) => user1.id == message.author.id
         );
+
+        //create embed to send once clocked in
         const clockin_embed = new discord_js_1.EmbedBuilder()
           .setDescription(
             `${userData}` + " clocked into " + message.guild.name + "!"
@@ -81,7 +85,8 @@ client.on("messageCreate", async (message) => {
           .setColor('Blue')
           .setTimestamp();
         //   .setFooter({ text: now.toLocaleString("en-US") + " UTC" });
-
+        
+        //look up user data in the database
         User.findOne({
           user_id: message.author.id,
           server_id: message.guild.id,
@@ -125,6 +130,7 @@ client.on("messageCreate", async (message) => {
             newUser
               .save()
               .then((sender) => {
+                //send embed to let user know they are clocked in
                 message.channel.send({ embeds: [clockin_embed] });
               })
               .catch((err) => {
@@ -137,14 +143,16 @@ client.on("messageCreate", async (message) => {
         });
         break;
 
-      //clockout command. going off duty
+      //clockout command for going off duty
       case "clockout":
         var clockout_now = new Date();
 
+        //look up user in the database
         User.findOne({
           user_id: message.author.id,
           server_id: message.guild.id,
         }).then((sender) => {
+          //alert user if they never clocked in
           if (!sender || !sender.clocked_in) {
             message.reply(
               "Looks like you never clocked into " + message.guild.name + "..."
@@ -160,6 +168,8 @@ client.on("messageCreate", async (message) => {
             let userData = client.users.cache.find(
               (user1) => user1.id == message.author.id
             );
+            
+            //creating embed to let the user know they are clocked out.
             const clockout_embed = new discord_js_1.EmbedBuilder()
               .setDescription(
                 `${userData}` +
@@ -188,6 +198,7 @@ client.on("messageCreate", async (message) => {
             //saving user object
             User.updateOne({ _id: sender._id }, updatedUser)
               .then(() => {
+                //sending embed
                 message.channel.send({ embeds: [clockout_embed] });
               })
               .catch((err) => {
@@ -201,9 +212,10 @@ client.on("messageCreate", async (message) => {
 
         break;
 
-      // data command
+      // data command to show all of a user's data or data for the whole server
       case "data":
         const time_now = new Date();
+
 
         if (
           args[0] == "all" &&
@@ -244,11 +256,11 @@ client.on("messageCreate", async (message) => {
                     (user1) => user1.id == user.user_id
                   );
 
-                  ALLDATA_EMBED.addFields({name: `${userData}`, value: `- ${time_days} days, ${time_hrs} hours, ${time_mins} mins, ${time_secs} secs`});
+                  ALLDATA_EMBED.addFields({name: `${userData}`, value: `- ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s`});
                 }
 
                 message.author.send({ embeds: [ALLDATA_EMBED] });
-                message.reply("Check your dms ;)");
+                message.react('✅');
               }
             })
             .catch((err) => {
@@ -477,7 +489,7 @@ client.on("messageCreate", async (message) => {
           message.reply("Sorry. You don't have permission to do that.");
         } else {
           const m = await message.reply(
-            "Are you sure you want to do this? It can't be undone. React with :thumbsup: to confirm and :thumbsdown: to cancel."
+            "React with :thumbsup: to confirm and :thumbsdown: to cancel."
           );
 
           m.react("👍").then((r) => {
@@ -492,7 +504,7 @@ client.on("messageCreate", async (message) => {
 
           collector.on("collect", (reaction, user) => {
             if (reaction.emoji.name == "👍") {
-              message.reply("Clearing data...");
+              message.channel.send("Clearing data...");
               User.deleteMany({ server_id: message.guild.id })
                 .then(() => {
                   message.channel.send(
@@ -501,7 +513,7 @@ client.on("messageCreate", async (message) => {
                 })
                 .catch((err) => {
                   console.log(err);
-                  message.channel.send("An error ocurred. Please try again.");
+                  message.channel.send("An error ocurred. Please try again later.");
                 });
             } else message.reply("Operation canceled.");
           });
