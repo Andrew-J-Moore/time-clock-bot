@@ -91,8 +91,12 @@ client.on("messageCreate", async (message) => {
           user_id: message.author.id,
           server_id: message.guild.id,
         }).then((sender) => {
+
+          if(sender && sender.clocked_in) {
+            message.reply(`Looks like you're already clocked into **${message.guild.name}**`)
+          }
           //for if user already exists
-          if (sender) {
+          else if (sender && !sender.clocked_in) {
             //user object with updated properties
             const updatedUser = new User({
               _id: sender._id,
@@ -336,6 +340,7 @@ client.on("messageCreate", async (message) => {
 
         User.find({ server_id: message.guild.id, clocked_in: true })
           .then((clockedin) => {
+            // console.log(clockedin);
             const clockedin_embed = new discord_js_1.EmbedBuilder()
               .setTitle(
                 "Everyone clocked into " + message.guild.name + " right now:\n"
@@ -345,6 +350,7 @@ client.on("messageCreate", async (message) => {
             //   .setFooter({ text: time_now1.toLocaleString() + " UTC" });
 
             for (let user of clockedin) {
+              // console.log(user);
               let elapsed_time = Math.floor((time_now1 - user.clockin) / 60000);
               let userInfo = client.users.cache.find(
                 (user1) => user1.id == user.user_id
@@ -353,7 +359,9 @@ client.on("messageCreate", async (message) => {
               clockedin_embed.addFields(
                 {name: `-------------------------------------`, value: `${userInfo} - ${elapsed_time} mins\n\n`, inline: true}
               );
+            
             }
+            
             message.channel.send({ embeds: [clockedin_embed] });
           })
           .catch((err) => {
