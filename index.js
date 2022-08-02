@@ -45,6 +45,54 @@ mongoose
     console.log(err);
   });
 
+async function clockedInLoop(users, guild_id) {
+  let fieldsArr = new Array();
+  for (let user of users) {
+    // console.log(`User Line 353: \n ${user}`);
+    const time_now1 = new Date();
+    let elapsed_time = Math.floor((time_now1 - user.clockin) / 60000);
+    // let userInfo = message.guild.members.fetch(`${user.user_id}`);
+    // console.log(userInfo);
+    const guild = await client.guilds.cache.find((g) => g.id === guild_id);
+    await guild.members.fetch().then((members) =>
+      members.forEach((member) => {
+        if(member.id == user.user_id) {
+          // console.log(`Username: ${member.user.username}\nNickname: ${member.nickname}\n`);
+          fieldsArr.push(
+            {name: `**${member.user.username} - (${member.nickname})**`, value: `${elapsed_time} mins\n\n`, inline: false}
+          );
+          // console.log(clockedin_embed.data.fields);
+        }
+      }),
+    );   
+    // console.log(`User Info: \n ${userInfo}`);   
+  }
+  // console.log(fieldsArr);
+  return fieldsArr;
+}
+
+async function allDataLoop(users, guild_id) {
+  let fieldsArr = new Array();
+  for (let user of users) {
+    // console.log(`User Line 353: \n ${user}`);
+    // let userInfo = message.guild.members.fetch(`${user.user_id}`);
+    // console.log(userInfo);
+    const guild = await client.guilds.cache.find((g) => g.id === guild_id);
+    await guild.members.fetch().then((members) =>
+      members.forEach((member) => {
+        if(member.id == user.user_id) {
+          // console.log(`Username: ${member.user.username}\nNickname: ${member.nickname}\n`);
+          fieldsArr.push(
+            {name: `**${member.user.username} - (${member.nickname})**`, value: `${user.time}`, inline: false}
+          );
+          // console.log(clockedin_embed.data.fields);
+        }
+      }),
+    );  
+  }
+  return fieldsArr;
+}
+
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
@@ -237,7 +285,8 @@ client.on("messageCreate", async (message) => {
                   .setTitle("All data for **" + message.guild.name + ":**")
                   .setColor('Blue')
                   .setTimestamp();
-                //   .setFooter({ text: time_now.toLocaleString() + " UTC" });
+
+                let usersArr = new Array();
 
                 for (let user of users) {
                   let time_ms = user.total_time;
@@ -256,15 +305,17 @@ client.on("messageCreate", async (message) => {
                       1000
                   );
 
-                  let userData = client.users.cache.find(
-                    (user1) => user1.id == user.user_id
-                  );
+                  usersArr.push({ user_id: user.user_id, time: `${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s`})
+
                   // console.log(userData);
-                  ALLDATA_EMBED.addFields({name: `-------------------------------------`, value: `**${userData} - ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s**`});
+                  // ALLDATA_EMBED.addFields({name: `-------------------------------------`, value: `**${userData} - ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s**`});
                 }
 
-                message.author.send({ embeds: [ALLDATA_EMBED] });
-                message.react('✅');
+                allDataLoop(usersArr, message.guild.id).then(fields => {
+                  ALLDATA_EMBED.addFields(fields);
+                  message.author.send({ embeds: [ALLDATA_EMBED] });
+                  message.react('✅');
+                });
               }
             })
             .catch((err) => {
@@ -336,8 +387,6 @@ client.on("messageCreate", async (message) => {
       
     //command for checking who's clockedin    
       case "clockedin":
-        const time_now1 = new Date();
-
         User.find({ server_id: message.guild.id, clocked_in: true })
           .then((clockedin) => {
             // console.log(clockedin);
@@ -349,20 +398,12 @@ client.on("messageCreate", async (message) => {
               .setTimestamp();
             //   .setFooter({ text: time_now1.toLocaleString() + " UTC" });
 
-            for (let user of clockedin) {
-              // console.log(user);
-              let elapsed_time = Math.floor((time_now1 - user.clockin) / 60000);
-              let userInfo = client.users.cache.find(
-                (user1) => user1.id == user.user_id
-              );
-              // console.log(userInfo);
-              clockedin_embed.addFields(
-                {name: `-------------------------------------`, value: `${userInfo} - ${elapsed_time} mins\n\n`, inline: true}
-              );
+            clockedInLoop(clockedin, message.guild.id).then(fields => {
+              clockedin_embed.addFields(fields);
+              // console.log(clockedin_embed.data.fields);
+              message.channel.send({embeds: [clockedin_embed]});
+            });                  
             
-            }
-            
-            message.channel.send({ embeds: [clockedin_embed] });
           })
           .catch((err) => {
             console.log(err);
@@ -409,6 +450,7 @@ client.on("messageCreate", async (message) => {
                     total_time: user.total_time,
                     server_id: user.server_id,
                   };
+                  // console.log(`\nUpdated User: \n ${updatedUser}`);
                   User.updateOne({_id: user._id}, updatedUser)
                     .then(() => {
                       const FORCECI_EMBED = new discord_js_1.EmbedBuilder()
@@ -431,6 +473,34 @@ client.on("messageCreate", async (message) => {
                         "An error occurred. Please try again."
                       );
                     });
+                } else if (!user) {
+                  // console.log(message.mentions.users.first());
+
+                  //creating new user
+                  let newUser = new User({
+                    user_id: message.mentions.users.first().id,
+                    clockin: force_now,
+                    clocked_in: true,
+                    total_time: 0,
+                    server_id: message.guild.id
+                  });
+
+                  //fetching discord data for mentioned user
+                  let mentioned_user = client.users.cache.find(
+                    (user1) => user1.id == message.mentions.users.first()
+                  );
+                  const FORCECO_EMBED2 = new discord_js_1.EmbedBuilder()
+                  .setDescription(`${mentioned_user} successfully clocked into ${message.guild.name}`)
+                  .setTimestamp();
+                  
+                  //saving new user
+                  newUser.save().then(result => {
+                    message.channel.send({embeds: [FORCECO_EMBED2]});
+                  }).catch(err => {
+                    console.log("Error Line 454: \n");
+                    console.log(err);
+                    message.channel.send("An error occurred. Please try again later.");
+                  })
                 }
               }
             );
@@ -458,7 +528,7 @@ client.on("messageCreate", async (message) => {
                     total_time: user.total_time + elapsed_time,
                     server_id: user.server_id,
                   };
-                  User.updateOne(updatedUser)
+                  User.updateOne({_id: updatedUser._id}, updatedUser)
                     .then(() => {
                       const FORCECO_EMBED = new discord_js_1.EmbedBuilder()
                         .setDescription(
@@ -537,7 +607,9 @@ client.on("messageCreate", async (message) => {
         } else if(!Number.isInteger(parseInt(args[1]))) {
           message.reply("That's the wrong format. Please do $add [user] [time in minutes]. The second argument must be an integer.")
          } else {
-          const time_to_add = args[1];
+          const time_to_add = Number.parseInt(args[1]);
+          // console.log(time_to_add * 60000);
+          // console.log(Number.isInteger(time_to_add));
           const mentioned_user = message.mentions.users.first();
           User.findOne({
             user_id: mentioned_user.id,
@@ -582,18 +654,21 @@ client.on("messageCreate", async (message) => {
                   .setColor('Blue')
                   .setTimestamp();
                 //   .setFooter({ text: `${add_now.toLocaleString()} UTC` });
-
+                // console.log(time_to_add);
                 const updatedUser = new User({
                   _id: user._id,
                   user_id: user.user_id,
                   clockin: user.clockin,
                   clocked_in: user.clocked_in,
-                  total_time: user.total_time + time_to_add * 60000,
+                  total_time: user.total_time + (time_to_add * 60000),
                   server_id: user.server_id,
                 });
 
-                updatedUser.updateOne({_id: user._id})
+                // console.log(updatedUser);
+
+                User.updateOne({_id: updatedUser._id}, updatedUser)
                   .then((result) => {
+                    // console.log(result);
                     message.channel.send({ embeds: [add_embed] });
                   })
                   .catch((err) => {
