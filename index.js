@@ -342,9 +342,11 @@ client.on("messageCreate", async (message) => {
                       ALLDATA_EMBED2.addFields(fields[x]);
                     }
 
+                    message.author.send({ embeds: [ALLDATA_EMBED, ALLDATA_EMBED2 ]});
+
                   } else {
                     ALLDATA_EMBED.addFields(fields);
-                    message.author.send({ embeds: [ALLDATA_EMBED, ALLDATA_EMBED2] });
+                    message.author.send({ embeds: [ALLDATA_EMBED] });
                     message.react('✅');
                   }
                 });
