@@ -100,10 +100,10 @@ function secondsToDhms(seconds) {
   var m = Math.floor(seconds % 3600 / 60);
   var s = Math.floor(seconds % 60);
   
-  var dDisplay = d > 0 ? d + (d == 1 ? "d " : "d ") : "";
-  var hDisplay = h > 0 ? h + (h == 1 ? "h " : "h ") : "";
-  var mDisplay = m > 0 ? m + (m == 1 ? "m " : "m ") : "";
-  var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") : "";
+  var dDisplay = d > 0 ? d + (d == 1 ? "d " : "d ") : "0d ";
+  var hDisplay = h > 0 ? h + (h == 1 ? "h " : "h ") : "0h ";
+  var mDisplay = m > 0 ? m + (m == 1 ? "m " : "m ") : "0m ";
+  var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") : "0s";
   return dDisplay + hDisplay + mDisplay + sDisplay;
   }
 
@@ -351,7 +351,7 @@ client.on("messageCreate", async (message) => {
                   "Looks like you haven't clocked in since the last time data was cleared."
                 );
               } else {
-                console.log(secondsToDhms(Math.floor(sender.total_time/1000)));
+                // console.log(secondsToDhms(Math.floor(sender.total_time/1000)));
                 // console.log(sender.total_time);
                 // let time_ms = sender.total_time;
                 // let raw_days = time_ms / 86400000;
