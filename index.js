@@ -93,6 +93,20 @@ async function allDataLoop(users, guild_id) {
   return fieldsArr;
 }
 
+function secondsToDhms(seconds) {
+  seconds = Number(seconds);
+  var d = Math.floor(seconds / (3600*24));
+  var h = Math.floor(seconds % (3600*24) / 3600);
+  var m = Math.floor(seconds % 3600 / 60);
+  var s = Math.floor(seconds % 60);
+  
+  var dDisplay = d > 0 ? d + (d == 1 ? "d " : "d ") : "";
+  var hDisplay = h > 0 ? h + (h == 1 ? "h " : "h ") : "";
+  var mDisplay = m > 0 ? m + (m == 1 ? "m " : "m ") : "";
+  var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") : "";
+  return dDisplay + hDisplay + mDisplay + sDisplay;
+  }
+
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
@@ -289,23 +303,24 @@ client.on("messageCreate", async (message) => {
                 let usersArr = new Array();
 
                 for (let user of users) {
-                  let time_ms = user.total_time;
-                  let time_days = Math.floor(time_ms / 86400000);
-                  let time_hrs = Math.floor(
-                    (time_ms - time_days * 86400000) / 3600000
-                  );
-                  let time_mins = Math.floor(
-                    (time_ms - time_days * 8640000 - time_hrs * 3600000) / 60000
-                  );
-                  let time_secs = Math.floor(
-                    (time_ms -
-                      time_days * 8640000 -
-                      time_hrs * 3600000 -
-                      time_mins * 60000) /
-                      1000
-                  );
+                  // let time_ms = user.total_time;
+                  // let time_days = Math.floor(time_ms / 86400000);
+                  // let time_hrs = Math.floor(
+                  //   (time_ms - time_days * 86400000) / 3600000
+                  // );
+                  // let time_mins = Math.floor(
+                  //   (time_ms - time_days * 8640000 - time_hrs * 3600000) / 60000
+                  // );
+                  // let time_secs = Math.floor(
+                  //   (time_ms -
+                  //     time_days * 8640000 -
+                  //     time_hrs * 3600000 -
+                  //     time_mins * 60000) /
+                  //     1000
+                  // );
 
-                  usersArr.push({ user_id: user.user_id, time: `${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s`})
+                  // console.log(secondsToDhms(Math.floor(user.total_time/1000)));
+                  usersArr.push({ user_id: user.user_id, time: secondsToDhms(Math.floor(user.total_time/1000))});
 
                   // console.log(userData);
                   // ALLDATA_EMBED.addFields({name: `-------------------------------------`, value: `**${userData} - ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s**`});
@@ -336,22 +351,41 @@ client.on("messageCreate", async (message) => {
                   "Looks like you haven't clocked in since the last time data was cleared."
                 );
               } else {
-                let time_ms = sender.total_time;
-                let time_days = Math.floor(time_ms / 86400000);
-                let time_hrs = Math.floor(
-                  (time_ms - time_days * 86400000) / 3600000
-                );
-                let time_mins = Math.floor(
-                  (time_ms - time_days * 8640000 - time_hrs * 3600000) / 60000
-                );
-                let time_secs = Math.floor(
-                  (time_ms -
-                    time_days * 8640000 -
-                    time_hrs * 3600000 -
-                    time_mins * 60000) /
-                    1000
-                );
+                console.log(secondsToDhms(Math.floor(sender.total_time/1000)));
+                // console.log(sender.total_time);
+                // let time_ms = sender.total_time;
+                // let raw_days = time_ms / 86400000;
+                // let time_days = Math.floor(raw_days);
+                // console.log(raw_days);
+                // console.log(time_days);
+                // // console.log(`Days: ${Math.floor(time_ms / 86400000)}\n`);
 
+                // let raw_hrs = (time_ms - (raw_days * 86400000))/3600000;
+                // let time_hrs = Math.floor(
+                //   (time_ms - (raw_days * 86400000)) / 3600000
+                // );
+                // console.log(raw_hrs);
+                // console.log(time_hrs);
+
+                // let raw_mins = (time_ms - ((raw_days * 86400000) - (raw_hrs * 3600000))) / 60000;
+                // let time_mins = Math.floor(
+                //   (time_ms - ((raw_days * 8640000) - (raw_hrs * 3600000))) / 60000
+                // );
+                // console.log(time_mins);
+                // console.log(raw_mins);
+
+                // // console.log(time_ms);
+                // // console.log(time_days * 86400000);
+                // // console.log(time_hrs * 3600000);
+                // let time_secs = Math.floor(
+                //   (time_ms -
+                //     (raw_days * 8640000) -
+                //     (raw_hrs * 3600000) -
+                //     (raw_mins * 60000)) /
+                //     1000
+                // );
+
+                let total = secondsToDhms(Math.floor(sender.total_time/1000));
                 const data_embed = new discord_js_1.EmbedBuilder()
                   .setTitle(
                     message.author.username +
@@ -361,14 +395,7 @@ client.on("messageCreate", async (message) => {
                   )
                   .setColor('Blue')
                   .setDescription(
-                    time_days +
-                      " days, " +
-                      time_hrs +
-                      " hrs, " +
-                      time_mins +
-                      " mins, " +
-                      time_secs +
-                      " secs."
+                    total
                   )
                   .setTimestamp();
                 //   .setFooter({ text: time_now.toLocaleString() + " UTC" });
