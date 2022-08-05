@@ -255,7 +255,7 @@ client.on("messageCreate", async (message) => {
             const updatedUser = new User({
               _id: sender._id,
               user_id: sender.user_id,
-              clockin: 0,
+              clockin: sender.clockin,
               clocked_in: false,
               total_time: sender.total_time + elapsed_ms,
               server_id: sender.server_id,
@@ -295,10 +295,6 @@ client.on("messageCreate", async (message) => {
                   "Either no one has clocked in or an error occurred. Please try again later."
                 );
               } else if (users) {
-                const ALLDATA_EMBED = new discord_js_1.EmbedBuilder()
-                  .setTitle("All data for **" + message.guild.name + ":**")
-                  .setColor('Blue')
-                  .setTimestamp();
 
                 let usersArr = new Array();
 
@@ -327,9 +323,30 @@ client.on("messageCreate", async (message) => {
                 }
 
                 allDataLoop(usersArr, message.guild.id).then(fields => {
-                  ALLDATA_EMBED.addFields(fields);
-                  message.author.send({ embeds: [ALLDATA_EMBED] });
-                  message.react('✅');
+                  const ALLDATA_EMBED2 = new discord_js_1.EmbedBuilder()
+                    .setTitle("All data for **" + message.guild.name + ":**")
+                    .setColor('Blue')
+                    .setTimestamp();
+                  const ALLDATA_EMBED = new discord_js_1.EmbedBuilder()
+                  .setTitle("All data for **" + message.guild.name + ":**")
+                  .setColor('Blue')
+                  .setTimestamp();
+                  if(fields.length > 25) {
+                    let fieldsArr1 = new Array();
+                    for (let x = 1; x <=25; x++) {
+                      ALLDATA_EMBED.addFields(fields.pop());
+                    }
+                    console.log(fields.length);
+                    let y = fields.length();
+                    for(let x = 1; x <= fields.length()-1; x++) {
+                      ALLDATA_EMBED2.addFields(fields[x]);
+                    }
+
+                  } else {
+                    ALLDATA_EMBED.addFields(fields);
+                    message.author.send({ embeds: [ALLDATA_EMBED, ALLDATA_EMBED2] });
+                    message.react('✅');
+                  }
                 });
               }
             })
