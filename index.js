@@ -337,8 +337,8 @@ client.on("messageCreate", async (message) => {
                       ALLDATA_EMBED.addFields(fields.pop());
                     }
                     console.log(fields.length);
-                    let y = fields.length();
-                    for(let x = 1; x <= fields.length()-1; x++) {
+                    let y = fields.length;
+                    for(let x = 1; x <= fields.length-1; x++) {
                       ALLDATA_EMBED2.addFields(fields[x]);
                     }
 
