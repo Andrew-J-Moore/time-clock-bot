@@ -14,7 +14,7 @@ const client = new discord_js_1.Client({
   presence: {
     status: 'online',
     activities: [{
-      name: "$help",
+      name: `${prefix}help`,
       type: discord_js_1.ActivityType.Listening,
     }]
   },
@@ -83,7 +83,7 @@ async function allDataLoop(users, guild_id) {
         if(member.id == user.user_id) {
           // console.log(`Username: ${member.user.username}\nNickname: ${member.nickname}\n`);
           fieldsArr.push(
-            {name: `**${member.user.username} - (${member.nickname})**`, value: `${user.time}`, inline: false}
+            {name: `${member.user.username} - ${member.nickname}`, value: `${user.time}`, inline: false}
           );
           // console.log(clockedin_embed.data.fields);
         }
@@ -288,7 +288,6 @@ client.on("messageCreate", async (message) => {
           message.member.permissions.has(discord_js_1.PermissionsBitField.Flags.Administrator)
         ) {
           User.find({ server_id: message.guild.id })
-            .sort({ elapsed_time: 1 })
             .then((users) => {
               if (users.length == 0) {
                 message.reply(
@@ -299,56 +298,60 @@ client.on("messageCreate", async (message) => {
                 let usersArr = new Array();
 
                 for (let user of users) {
-                  // let time_ms = user.total_time;
-                  // let time_days = Math.floor(time_ms / 86400000);
-                  // let time_hrs = Math.floor(
-                  //   (time_ms - time_days * 86400000) / 3600000
-                  // );
-                  // let time_mins = Math.floor(
-                  //   (time_ms - time_days * 8640000 - time_hrs * 3600000) / 60000
-                  // );
-                  // let time_secs = Math.floor(
-                  //   (time_ms -
-                  //     time_days * 8640000 -
-                  //     time_hrs * 3600000 -
-                  //     time_mins * 60000) /
-                  //     1000
-                  // );
-
-                  // console.log(secondsToDhms(Math.floor(user.total_time/1000)));
                   usersArr.push({ user_id: user.user_id, time: secondsToDhms(Math.floor(user.total_time/1000))});
-
-                  // console.log(userData);
-                  // ALLDATA_EMBED.addFields({name: `-------------------------------------`, value: `**${userData} - ${time_days}d ${time_hrs}h ${time_mins}m ${time_secs}s**`});
                 }
 
                 allDataLoop(usersArr, message.guild.id).then(fields => {
-                  const ALLDATA_EMBED2 = new discord_js_1.EmbedBuilder()
+                  // console.log(fields);
+                  // let fields = new Array(
+                  //   { name: 'John Doe', value: '15d 0h 15m 0s', inline: false },
+                  // );
+
+                  // console.log(fields.length);
+
+                  let embeds = new Array();
+
+                  if(fields.length > 25) {
+                    
+                    let out_loop = Math.ceil(fields.length / 25);
+
+                    for (let a = 1; a <= out_loop; a++){
+                      let temp_embed = new discord_js_1.EmbedBuilder()
+                      .setTitle(`All data for **${message.guild.name}:**`)
+                      .setColor('Blue')
+                      .setTimestamp();
+
+                      if(fields.length > 25) {
+                        for (let x = 1; x <=25; x++) {
+                          // console.log(fields[0]);
+                          temp_embed.addFields(fields.pop());
+                        }
+                      } else {
+                        for(let x = 0; x <= fields.length-1; x++) {
+                          // console.log(fields[x]);
+                          temp_embed.addFields(fields[x]);
+                        }
+                      }
+                      embeds.push(temp_embed);
+                    }
+                    
+                    message.author.send({ embeds: embeds });
+                    message.react('✅');
+
+                  } else {
+                    const ALLDATA_EMBED = new discord_js_1.EmbedBuilder()
                     .setTitle("All data for **" + message.guild.name + ":**")
                     .setColor('Blue')
                     .setTimestamp();
-                  const ALLDATA_EMBED = new discord_js_1.EmbedBuilder()
-                  .setTitle("All data for **" + message.guild.name + ":**")
-                  .setColor('Blue')
-                  .setTimestamp();
-                  if(fields.length > 25) {
-                    let fieldsArr1 = new Array();
-                    for (let x = 1; x <=25; x++) {
-                      ALLDATA_EMBED.addFields(fields.pop());
-                    }
-                    console.log(fields.length);
-                    let y = fields.length;
-                    for(let x = 1; x <= fields.length-1; x++) {
-                      ALLDATA_EMBED2.addFields(fields[x]);
-                    }
 
-                    message.author.send({ embeds: [ALLDATA_EMBED, ALLDATA_EMBED2 ]});
-
-                  } else {
                     ALLDATA_EMBED.addFields(fields);
+
                     message.author.send({ embeds: [ALLDATA_EMBED] });
                     message.react('✅');
                   }
+                }).catch(error => {
+                  console.log(error);
+                  message.channel.send("An error occurred. Please try again later.");
                 });
               }
             })
